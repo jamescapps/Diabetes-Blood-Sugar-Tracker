@@ -6,6 +6,8 @@ import { logoutUser } from "./actions/authActions"
 import { VictoryChart, VictoryBar, VictoryLine, VictoryPie, VictoryTooltip, VictoryLegend} from 'victory'
 import moment from "moment"
 
+import { getData, test } from "./functions/reused_functions"
+
 
 class Chart extends Component {
     constructor(props) {
@@ -21,6 +23,9 @@ class Chart extends Component {
     }
 
     componentDidMount() {
+        test()
+        getData()
+      
         const { user } = this.props.auth
         axios.get('/bloodsugar')
             .then(response => {
@@ -54,16 +59,16 @@ class Chart extends Component {
 
     averageReading() {
         let total = 0;
-        for (var i = 0; i < this.state.readings.length; i++) {
-            total += this.state.readings[i].level;
-        }
-
-        if (isNaN(Math.round(total / this.state.readings.length))) {
-            return ""
-        } else {
-            return Math.round(total / this.state.readings.length)
-        }
-    }
+         for (var i = 0; i < this.state.readings.length; i++) {
+             total += this.state.readings[i].level;
+         }
+     
+         if (isNaN(Math.round(total / this.state.readings.length))) {
+             return ""
+         } else {
+             return Math.round(total / this.state.readings.length)
+         }
+     }
 
     categoryStyle(lev) {
         if (lev > 140) {

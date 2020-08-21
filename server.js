@@ -14,6 +14,14 @@ require('./config/passport')
 app.use(helmet())
 app.use(helmet.noSniff())
 app.use(helmet.xssFilter())
+app.use(helmet.contentSecurityPolicy({
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'"],
+      styleSrc: ["'self'"]
+    }
+  }))
+  app.use(helmet.hidePoweredBy({ setTo: 'PHP 4.2.0' }))
 
 //Connect to database.
 mongoose.connect(process.env.MONGODB_URI, { useUnifiedTopology: true, useNewUrlParser: true })
@@ -37,7 +45,6 @@ app.use('/forgotpassword', forgotpasswordRouter)
 app.use('/resetpassword', resetpasswordRouter)
 app.use('/updatepasswordviaemail', updatepasswordviaemailRouter)
 
-
 if (process.env.NODE_ENV === 'production' || process.env.NODE_ENV === 'staging') {
     //Set static folder
     app.use(express.static('client/build'));
@@ -46,9 +53,6 @@ if (process.env.NODE_ENV === 'production' || process.env.NODE_ENV === 'staging')
         res.sendFile(path.resolve(__dirname, 'client', 'build', 'index.html'))
     })
 }  
-
-
-
 
 app.listen(process.env.PORT || 5000, () => {
     console.log("Server is running!")

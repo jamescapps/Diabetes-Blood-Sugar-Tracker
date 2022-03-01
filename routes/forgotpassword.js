@@ -1,8 +1,9 @@
 require('dotenv').config()
-const router = require('express').Router()
-let User = require('../models/user.model')
+
+const router     = require('express').Router()
+let User         = require('../models/user.model')
 const nodemailer = require('nodemailer')
-const crypto =require("crypto")
+const crypto     = require("crypto")
 
 
 router.route('/forgotpassword').post((req, res) => {

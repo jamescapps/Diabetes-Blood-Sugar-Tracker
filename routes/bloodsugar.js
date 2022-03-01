@@ -1,5 +1,5 @@
 const router = require('express').Router()
-let User = require('../models/user.model')
+let User     = require('../models/user.model')
 
 router.route('/').get((req, res) => {
     User.find()
@@ -8,8 +8,9 @@ router.route('/').get((req, res) => {
 })
 
 router.route('/add').post((req, res) => {
-    const { id } = req.body
+    const { id }    = req.body
     const { level } = req.body
+
     const date = Date.parse(req.body.date)
 
     //Make sure it is a 2 or 3 digit number

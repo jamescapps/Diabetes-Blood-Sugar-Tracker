@@ -1,16 +1,18 @@
 require('dotenv').config()
-const express = require('express')
-const cors = require('cors')
+require('./config/passport')
+
+const express  = require('express')
+const cors     = require('cors')
 const mongoose = require('mongoose')
-const helmet = require('helmet')
+const helmet   = require('helmet')
 const passport = require('passport')
-const app = express()
+
+const app  = express()
 const path = require('path')
 
 app.use(cors())
 app.use(express.json())
 app.use(passport.initialize())
-require('./config/passport')
 app.use(helmet())
 app.use(helmet.noSniff())
 app.use(helmet.xssFilter())
@@ -23,11 +25,11 @@ mongoose.connection.once('open', () => {
     console.log("Connected to database!")
 })
 
-const usersRouter = require('./routes/users')
-const bloodsugarRouter = require('./routes/bloodsugar')
-const loginRouter = require('./routes/login')
-const forgotpasswordRouter = require('./routes/forgotpassword')
-const resetpasswordRouter = require('./routes/resetpassword')
+const usersRouter                  = require('./routes/users')
+const bloodsugarRouter             = require('./routes/bloodsugar')
+const loginRouter                  = require('./routes/login')
+const forgotpasswordRouter         = require('./routes/forgotpassword')
+const resetpasswordRouter          = require('./routes/resetpassword')
 const updatepasswordviaemailRouter = require('./routes/updatePasswordViaEmail')
 
 app.use('/users', usersRouter)
@@ -46,8 +48,6 @@ if (process.env.NODE_ENV === 'production' || process.env.NODE_ENV === 'staging')
         res.sendFile(path.resolve(__dirname, 'client', 'build', 'index.html'))
     })
 }  
-
-
 
 
 app.listen(process.env.PORT || 5000, () => {

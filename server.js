@@ -23,19 +23,15 @@ mongoose.connection.once('open', () => {
     console.log("Connected to database!")
 })
 
-const usersRouter = require('./routes/users')
-const bloodsugarRouter = require('./routes/bloodsugar')
+const registrationRouter = require('./routes/registration')
+const readingsRouter = require('./routes/readings')
 const loginRouter = require('./routes/login')
-const forgotpasswordRouter = require('./routes/forgotpassword')
-const resetpasswordRouter = require('./routes/resetpassword')
-const updatepasswordviaemailRouter = require('./routes/updatePasswordViaEmail')
+const passwordUpdateRoutes = require('./routes/password')
 
-app.use('/users', usersRouter)
-app.use('/bloodsugar', bloodsugarRouter)
+app.use('/registration', registrationRouter)
+app.use('/readings', readingsRouter)
 app.use('/login', loginRouter)
-app.use('/forgotpassword', forgotpasswordRouter)
-app.use('/resetpassword', resetpasswordRouter)
-app.use('/updatepasswordviaemail', updatepasswordviaemailRouter)
+app.use('/password', passwordUpdateRoutes);
 
 
 if (process.env.NODE_ENV === 'production' || process.env.NODE_ENV === 'staging') {
@@ -46,8 +42,6 @@ if (process.env.NODE_ENV === 'production' || process.env.NODE_ENV === 'staging')
         res.sendFile(path.resolve(__dirname, 'client', 'build', 'index.html'))
     })
 }  
-
-
 
 
 app.listen(process.env.PORT || 5000, () => {

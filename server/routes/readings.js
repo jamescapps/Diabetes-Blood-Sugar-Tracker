@@ -1,7 +1,7 @@
 const router = require('express').Router();
-const { getUsers, addReading, deleteReading } = require('../controllers/readings');
+const { getUserData, addReading, deleteReading, getUserData } = require('../controllers/readings');
 
-router.get('/', getUsers);
+router.get('/', getUserData);
 
 router.post('/add', addReading);
 

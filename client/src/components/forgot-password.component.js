@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import axios from 'axios'
 
-export default class EntryPage extends Component {
+export default class ForgotPassword extends Component {
     constructor(props) {
         super(props)
 

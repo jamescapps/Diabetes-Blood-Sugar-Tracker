@@ -1,109 +1,91 @@
-import React, { Component } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
-export default class ResetPassword extends Component {
-    constructor(props) {
-        super(props);
+const ResetPassword = () => {
+    const [email, setEmail] = useState('');
+    const [password1, setPassword1] = useState('');
+    const [password2, setPassword2] = useState('');
+    const [message, setMessage] = useState('');
+    const [loading, setLoading] = useState(false);
 
-        this.state = {
-            email: '',
-            password1: '',
-            password2: '',
-            message: '',
-            loading: false
-        };
-    }
-
-    componentDidMount() {
+    useEffect(() => {
         const resetToken = window.location.pathname.split('/').pop();
 
-        axios.get('/resetpassword/reset/', {
-            params: { resetPasswordToken: resetToken }
-        })
-        .then(res => {
-            if (res.data.message === "Password reset link ok.") {
-                this.setState({
-                    email: res.data.email,
-                    message: res.data.message
+        const fetchResetToken = async () => {
+            try {
+                const res = await axios.get('/resetpassword/reset/', {
+                    params: { resetPasswordToken: resetToken }
                 });
-            } else {
-                this.setState({ message: res.data });
+                if (res.data.message === "Password reset link ok.") {
+                    setEmail(res.data.email);
+                    setMessage(res.data.message);
+                } else {
+                    setMessage(res.data);
+                }
+            } catch (err) {
+                console.error(err);
+                setMessage("Error fetching reset token.");
             }
-        })
-        .catch(err => {
-            console.error(err);
-            this.setState({ message: "Error fetching reset token." });
-        });
-    }
+        };
 
-    onChangePassword1 = (e) => {
-        this.setState({ password1: e.target.value });
-    };
+        fetchResetToken();
+    }, []);
 
-    onChangePassword2 = (e) => {
-        this.setState({ password2: e.target.value });
-    };
-
-    onSubmit = (e) => {
+    const onSubmit = async (e) => {
         e.preventDefault();
-        const { email, password1, password2 } = this.state;
 
         if (password1 !== password2) {
-            this.setState({ message: "Passwords do not match." });
+            setMessage("Passwords do not match.");
             return;
         }
 
-        this.setState({ loading: true });
+        setLoading(true);
         
         const user = { email, password1, password2 };
-       
-        axios.post('/updatePasswordViaEmail/updatePasswordViaEmail', user)
-            .then(res => {
-                this.setState({ message: res.data });
-                
-                if (res.data === "Password updated! Redirecting you to login page!") {
-                    setTimeout(() => {
-                        window.location = '/login';
-                    }, 1000);
-                }
-            })
-            .catch(err => {
-                console.error(err);
-                this.setState({ message: "Error updating password." });
-            })
-            .finally(() => {
-                this.setState({ loading: false });
-            });
+
+        try {
+            const res = await axios.post('/updatePasswordViaEmail/updatePasswordViaEmail', user);
+            setMessage(res.data);
+            
+            if (res.data === "Password updated! Redirecting you to login page!") {
+                setTimeout(() => {
+                    window.location = '/login';
+                }, 1000);
+            }
+        } catch (err) {
+            console.error(err);
+            setMessage("Error updating password.");
+        } finally {
+            setLoading(false);
+        }
     };
 
-    render() {
-        const { message, loading } = this.state;
-
-        return (
-            <div className="outer_container">
-                <br /><br /><br /><br /><br /><br /><br />
-                <div className="inner_container">    
-                    <p>Password Reset</p>
-                    <form onSubmit={this.onSubmit}>
-                        <input
-                            className="pword1"
-                            type="password"
-                            name="password1"
-                            placeholder="New Password"
-                            onChange={this.onChangePassword1}
-                        />
-                        <input
-                            className="pword2"
-                            type="password"
-                            name="password2"
-                            placeholder="Confirm Password"
-                            onChange={this.onChangePassword2}
-                        />
-                        <input type="submit" value={loading ? "Resetting..." : "Reset"} disabled={loading} />
-                    </form>
-                    {message && <p>{message}</p>}
-                </div>
+    return (
+        <div className="outer_container">
+            <br /><br /><br /><br /><br /><br /><br />
+            <div className="inner_container">
+                <p>Password Reset</p>
+                <form onSubmit={onSubmit}>
+                    <input
+                        className="pword1"
+                        type="password"
+                        name="password1"
+                        placeholder="New Password"
+                        onChange={(e) => setPassword1(e.target.value)}
+                    />
+                    <input
+                        className="pword2"
+                        type="password"
+                        name="password2"
+                        placeholder="Confirm Password"
+                        onChange={(e) => setPassword2(e.target.value)}
+                    />
+                    <input type="submit" value={loading ? "Resetting..." : "Reset"} disabled={loading} />
+                </form>
+                {message && <p>{message}</p>}
             </div>
-        );
-    }
-}
+        </div>
+    );
+};
+
+export default ResetPassword;

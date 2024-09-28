@@ -2,115 +2,156 @@ import React, { Component } from 'react'
 import axios from 'axios'
 import PropTypes from "prop-types"
 import { connect } from "react-redux"
-import { loginUser } from "./actions/authActions"
 
-
-class Login extends Component {
+class CreateUser extends Component {
     constructor(props) {
         super(props)
 
         this.state = {
+            firstname: '',
+            lastname: '',
             email: '',
-            password: '',
-            message: ''
+            password1: '',
+            password2: '',
+            message: '',
+            loading: false // New loading state
         }
 
+        this.onChangeFirstname = this.onChangeFirstname.bind(this)
+        this.onChangeLastname = this.onChangeLastname.bind(this)
         this.onChangeEmail = this.onChangeEmail.bind(this)
-        this.onChangePassword = this.onChangePassword.bind(this)
+        this.onChangePassword1 = this.onChangePassword1.bind(this)
+        this.onChangePassword2 = this.onChangePassword2.bind(this)
         this.onSubmit = this.onSubmit.bind(this)
     }
 
     componentDidMount() {
-        // If logged in and user navigates to Login page, should redirect them to dashboard
+        // If logged in and user navigates to Register page, should redirect them to dashboard
         if (this.props.auth.isAuthenticated) {
-          this.props.history.push("/loggedin")
+            this.props.history.push("/loggedin")
         }
-      }
+    }
 
-    componentDidUpdate() {
-        if (this.props.auth.isAuthenticated) {
-        this.props.history.push("/loggedin")
-        } 
+    onChangeFirstname(e) {
+        this.setState({ firstname: e.target.value })
+    }
+
+    onChangeLastname(e) {
+        this.setState({ lastname: e.target.value })
     }
 
     onChangeEmail(e) {
-        this.setState({
-            email: e.target.value
-        })
+        this.setState({ email: e.target.value })
     }
 
-    onChangePassword(e) {
-        this.setState({
-            password: e.target.value
-        })
+    onChangePassword1(e) {
+        this.setState({ password1: e.target.value })
+    }
+
+    onChangePassword2(e) {
+        this.setState({ password2: e.target.value })
+    }
+
+    validateEmail(email) {
+        const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; // Email regex
+        return re.test(String(email).toLowerCase());
+    }
+
+    validatePassword(password) {
+        return password.length >= 6; // Example password strength requirement
     }
 
     onSubmit(e) {
-       e.preventDefault()
-        
-       const userData = {
-            email: this.state.email.toLowerCase(),
-            password: this.state.password
-          };
-    
-           //axios.post('http://localhost:5000/login/login', userData)
-           axios.post('/login/login', userData)
-                .then(res => {
-                    if (res) {
-                        if (res.data.success !== true) {
-                            this.setState({
-                                message: res.data.toString()
-                            })
-                        } else {
-                            this.props.loginUser(userData)
-                        }
-                    } else {
-                        this.setState({
-                            message: "No response from server."
-                        })
-                    }  
-                })
-    }
+        e.preventDefault()
 
-    renderMessage() {
-        return this.state.message
-    }
+        const { firstname, lastname, email, password1, password2 } = this.state;
 
+        // Validate inputs
+        if (!firstname || !lastname || !email || !password1 || !password2) {
+            this.setState({ message: "All fields are required." });
+            return;
+        }
+
+        if (!this.validateEmail(email)) {
+            this.setState({ message: "Invalid email format." });
+            return;
+        }
+
+        if (!this.validatePassword(password1)) {
+            this.setState({ message: "Password must be at least 6 characters long." });
+            return;
+        }
+
+        if (password1 !== password2) {
+            this.setState({ message: "Passwords do not match." });
+            return;
+        }
+
+        this.setState({ loading: true }); // Start loading
+
+        const user = {
+            firstname,
+            lastname,
+            email: email.toLowerCase(),
+            password1,
+            password2
+        }
+
+        axios.post('/users/add', user)
+            .then(res => {
+                this.setState({ message: res.data, loading: false });
+                if (res.data === "User added! Redirecting you to login page!") {
+                    setTimeout(() => {
+                        this.props.history.push('/login'); // Redirect using history
+                    }, 1000);
+                }
+            })
+            .catch(err => {
+                this.setState({ message: "Error creating user. Please try again.", loading: false });
+            });
+    }
 
     render() {
         return (
             <div>
-                <div className = "outer_container">
-                    <div className = "inner_container">    
-                        <h1>Blood Sugar Tracker</h1>
-                            <p>An app for diabetics</p>
-                            <form onSubmit={this.onSubmit}>
-                                <input className = "email" type = "text" name = "email" placeholder = "email" onChange={this.onChangeEmail} style={{textAlign: 'left'}} />
-                                <input className = "pword" type = "password" name = "password" placeholder = "password" onChange={this.onChangePassword} />
-                                <input type = "submit" value = "Login" />
-                            </form>
-                            <p> <a href = "/forgotpassword">Forgot</a> my password.</p>
-                            <p> <a href = "/createuser">Create</a> an account.</p>
+                <div className="info">
+                    <h1>Sign Up</h1>
+                    <p>Start tracking your blood sugar levels</p><br />
+                    <div style={{ textAlign: 'left' }} className="listCreate">
+                        <ol>
+                            <li>Create a profile.</li>
+                            <li>Log in.</li>
+                            <li>Enter your blood sugar level and click submit.</li>
+                            <li>Your reading will be saved.</li>
+                            <li>Repeat whenever you are required to take a reading.</li>
+                        </ol>
                     </div>
-                    <p>{this.renderMessage()}</p>
+                </div>
+                <div className="outer_container_create">
+                    <div className="inner_container">
+                        <p>Profile</p>
+                        <form onSubmit={this.onSubmit}>
+                            <input className="firstname" type="text" name="firstname" placeholder="First Name" onChange={this.onChangeFirstname} />
+                            <input className="lastname" type="text" name="lastname" placeholder="Last Name" onChange={this.onChangeLastname} />
+                            <input className="email" type="email" name="email" placeholder="Email" onChange={this.onChangeEmail} /> {/* Changed type to email */}
+                            <input className="pword1" type="password" name="password1" placeholder="Password" onChange={this.onChangePassword1} />
+                            <input className="pword2" type="password" name="password2" placeholder="Confirm Password" onChange={this.onChangePassword2} />
+                            <input type="submit" value={this.state.loading ? "Creating..." : "Create"} disabled={this.state.loading} /> {/* Disable button while loading */}
+                        </form>
+                    </div>
+                    <p>{this.state.message}</p> {/* Message display */}
                 </div>
             </div>
         )
     }
 }
 
-Login.propTypes = {
-    loginUser: PropTypes.func.isRequired,
-    auth: PropTypes.object.isRequired,
-    errors: PropTypes.object.isRequired
-  }
-  const mapStateToProps = state => ({
-    auth: state.auth,
-    errors: state.errors
-  })
-  export default connect(
-    mapStateToProps,
-    { loginUser }
-  )(Login)
+CreateUser.propTypes = {
+    auth: PropTypes.object.isRequired
+}
 
- 
+const mapStateToProps = state => ({
+    auth: state.auth
+})
+
+export default connect(mapStateToProps)(CreateUser)

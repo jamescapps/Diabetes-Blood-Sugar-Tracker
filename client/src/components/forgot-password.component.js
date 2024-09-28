@@ -10,7 +10,8 @@ export default class EntryPage extends Component {
 
         this.state = {
             email: '',
-            message: ''
+            message: '',
+            loading: false // New loading state
         }
     }
 
@@ -20,38 +21,71 @@ export default class EntryPage extends Component {
         })
     }
 
-    renderMessage() {
-        return this.state.message
+    validateEmail(email) {
+        const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; // Email regex
+        return re.test(String(email).toLowerCase());
     }
 
     onSubmit(e) {
         e.preventDefault()
-        
-        if (this.state.email === '') {
+
+        const { email } = this.state;
+
+        // Validate email format
+        if (email === '') {
             this.setState({
                 message: "Please enter your email address."
             })
-        } else {
-            axios.post('/forgotpassword/forgotpassword', {email: this.state.email})
-                .then(res => {
-                    this.setState({
-                        message: res.data
-                    })
-                })
+            return;
         }
+
+        if (!this.validateEmail(email)) {
+            this.setState({
+                message: "Please enter a valid email address."
+            })
+            return;
+        }
+
+        this.setState({ loading: true }); // Start loading
+
+        axios.post('/forgotpassword/forgotpassword', { email })
+            .then(res => {
+                this.setState({
+                    message: res.data,
+                    loading: false // Stop loading
+                })
+            })
+            .catch(err => {
+                this.setState({
+                    message: "Error processing request. Please try again later.",
+                    loading: false // Stop loading
+                });
+            });
     }
 
     render() {
         return (
             <div>
-                <div className = "outer_container">
-                    <div className = "inner_container">    
+                <div className="outer_container">
+                    <div className="inner_container">
                         <h1>Forgot your password?</h1>
-                            <form onSubmit={this.onSubmit}>
-                                <input className = "email" type = "text" name = "email" placeholder = "email" onChange={this.onChangeEmail} style={{textAlign: 'center'}}/>
-                                <input type = "submit" value = "Reset" />
-                            </form>
-                            <p>{this.renderMessage()}</p> 
+                        <form onSubmit={this.onSubmit}>
+                            <input
+                                className="email"
+                                type="email" // Changed type to email
+                                name="email"
+                                placeholder="Email"
+                                onChange={this.onChangeEmail}
+                                style={{ textAlign: 'center' }}
+                                required // HTML5 validation
+                            />
+                            <input
+                                type="submit"
+                                value={this.state.loading ? "Resetting..." : "Reset"} // Change button text while loading
+                                disabled={this.state.loading} // Disable button while loading
+                            />
+                        </form>
+                        <p>{this.state.message}</p>
                     </div>
                 </div>
             </div>

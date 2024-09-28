@@ -1,4 +1,4 @@
-import React, { Component } from 'react'
+import React, { useEffect, useState } from 'react'
 import axios from 'axios'
 import PropTypes from "prop-types"
 import { connect } from "react-redux"
@@ -7,222 +7,148 @@ import moment from "moment"
 import { confirmAlert } from 'react-confirm-alert';
 import 'react-confirm-alert/src/react-confirm-alert.css';
 
- class FullHistory extends Component {
-    constructor(props) {
-        super(props)
+const FullHistory = ({ auth, logoutUser }) => {
+    const [firstname, setFirstname] = useState('');
+    const [readings, setReadings] = useState([]);
+    const [message, setMessage] = useState('');
+    const [listMessage, setListMessage] = useState('');
+    const [loading, setLoading] = useState(true);
 
-        this.state = {
-            firstname: '',
-            readings: [],
-            message: '',
-            id: '',
-            listMessage: '',
-        }
-    }
+    useEffect(() => {
+        const fetchReadings = async () => {
+            try {
+                const response = await axios.get('/bloodsugar');
+                const currentUser = response.data.find(x => x._id === auth.user.id);
+                const sortedReadings = currentUser.bloodSugar.sort((a, b) => new Date(b.date) - new Date(a.date));
 
-    componentDidMount() {
-        const { user } = this.props.auth
-
-        axios.get('/bloodsugar')
-            .then(response => {
-                //Match the current user with user in database
-                const currentUser = response.data.filter((x) => 
-                    x._id === user.id
-                )
-
-                //Sort the array with readings by date so that values display in order.
-                const sortedBloodSugarArray = currentUser[0].bloodSugar.sort((a,b) =>
-                    new Date(b.date)  - new Date(a.date) 
-                )
-                
-                //If no readings are available, display a message.
-                if (sortedBloodSugarArray.length === 0) {
-                    this.setState({
-                        listMessage: "Your readings will display here"
-                    })
+                if (sortedReadings.length === 0) {
+                    setListMessage("Your readings will display here");
                 }
-                this.setState({
-                    firstname: user.name,
-                    id: user.id,
-                    readings: sortedBloodSugarArray,
-                })
-            })
-            .catch((error) => {
-                console.log(error)
-            })
-    }
 
-    alertBox(id) {
+                setFirstname(auth.user.name);
+                setReadings(sortedReadings);
+            } catch (error) {
+                console.error(error);
+                setMessage("Error fetching data. Please try again later.");
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchReadings();
+    }, [auth.user.id]);
+
+    const alertBox = (id) => {
         confirmAlert({
             title: 'Confirm to delete',
             message: 'Are you sure you want to delete this reading?',
             buttons: [
-                {
-                    label: 'Yes',
-                    onClick: () => this.deleteItem(id)
-                },
-                {
-                    label: 'No'
-                  
-                }
-            ],
-            closeOnClickOutside: true,
-            closeOnEscape: true,
-            willUnmount: () => {},
-            onClickOutside: () => {},
-            onKeypressEscape: () => {}
-        })
-    }
-    
-   deleteItem (id) {
-        const url = `/bloodsugar/${this.state.id}/${id}`
-        axios.delete(url)
-            .then(res => {
-                this.setState({
-                    message: res.data
-                })
-                if (this.state.message === "Reading deleted!") {
-                    setTimeout(function(){
-                        window.location.reload()
-                     }, 1000)   
-                }
-            })        
-    }
+                { label: 'Yes', onClick: () => deleteItem(id) },
+                { label: 'No' }
+            ]
+        });
+    };
 
-    //Category based on level.
-    renderCategory(lev) {
-        let readingCategory;
-        if (lev > 140) {
-            readingCategory = "High"
-        } else if (lev < 70) {
-            readingCategory = "Low"
-        } else {
-            readingCategory = "Normal"
+    const deleteItem = async (id) => {
+        try {
+            const url = `/bloodsugar/${auth.user.id}/${id}`;
+            const res = await axios.delete(url);
+            setMessage(res.data);
+            if (res.data === "Reading deleted!") {
+                setReadings(prev => prev.filter(reading => reading._id !== id));
+            }
+        } catch (error) {
+            setMessage("Error deleting reading. Please try again later.");
         }
-        return readingCategory
-    }
+    };
 
-    //Color of category based on level.
-    categoryStyle(lev) {
-        if (lev > 140) {
-            return {
-                color: 'red',
-            }
-        } else if (lev < 70) {
-            return {
-                color: 'blue',
-            }
-        } else {
-            return {
-                color: 'green',
-            }
-        }
-    }
+    const averageReading = () => {
+        if (readings.length === 0) return "";
+        const total = readings.reduce((acc, reading) => acc + reading.level, 0);
+        return Math.round(total / readings.length);
+    };
 
-    renderList() {
-        return (
-            this.state.readings.map((el) =>
-            <div className = "levelRendered2" key={el._id}>
+    const renderCategory = (lev) => {
+        if (lev > 140) return "High";
+        if (lev < 70) return "Low";
+        return "Normal";
+    };
+
+    const categoryStyle = (lev) => {
+        if (lev > 140) return { color: 'red' };
+        if (lev < 70) return { color: 'blue' };
+        return { color: 'green' };
+    };
+
+    const renderList = () => (
+        readings.map(el => (
+            <div className="levelRendered2" key={el._id}>
                 <li>{el.level}</li>
-                <li style = {this.categoryStyle(el.level)}>{this.renderCategory(el.level)}</li><br /><br />
+                <li style={categoryStyle(el.level)}>{renderCategory(el.level)}</li><br /><br />
             </div>
-        ))    
-    }
+        ))
+    );
 
-    renderDates() {
-        return (
-            this.state.readings.map((el) => 
-            <div className = "dateAndTime" key={el._id}>
-                <div className = "dateRendered">
-                    <li>{(moment.utc(el.date).local().format('MMM. D, YYYY  hh:mm A')).substr(0, 13)}</li>
+    const renderDates = () => (
+        readings.map(el => (
+            <div className="dateAndTime" key={el._id}>
+                <div className="dateRendered">
+                    <li>{moment.utc(el.date).local().format('MMM. D, YYYY hh:mm A')}</li>
                 </div>
-                <div className = "timeRendered">
-                    <li>{(moment.utc(el.date).local().format('MMM. D, YYYY  hh:mm A')).substr(13, 20)}</li>
-                </div>
-                <div className = "delete">
-                    <li className = "delete" value={el._id} onClick={()=> this.alertBox(el._id)}><u>delete</u>&emsp;</li><br />
+                <div className="delete">
+                    <li className="delete" onClick={() => alertBox(el._id)}><u>delete</u>&emsp;</li><br />
                 </div>
             </div>
         ))
-    }
+    );
 
-    averageReading() {
-        let total = 0;
-        for (var i = 0; i < this.state.readings.length; i++) {
-            total += this.state.readings[i].level;
-        }
-        if (isNaN(Math.round(total / this.state.readings.length))) {
-            return ""
-        } else {
-            return Math.round(total / this.state.readings.length)
-        }
-    }
-
-    renderMessage() {
-        return this.state.message
-    }
-
-    onLogoutClick = e => {
+    const onLogoutClick = (e) => {
         e.preventDefault();
-        this.props.logoutUser()
+        confirmAlert({
+            title: 'Confirm Logout',
+            message: 'Are you sure you want to log out?',
+            buttons: [
+                { label: 'Yes', onClick: logoutUser },
+                { label: 'No' }
+            ]
+        });
+    };
+
+    if (loading) {
+        return <p>Loading...</p>;
     }
 
-    listStyle(item) {
-        if (item === "Your readings will display here") {
-            return {
-                justifyContent: 'center'
-            }
-        }
-    }
-
-    recentStyle(item) {
-        if (item === "Your readings will display here") {
-            return {
-                visibility: 'hidden'
-            }
-        }
-    }
-
-    render() {
-        return (
-            <div>
-                <div className = "nav">
-                    <div className = "back">
-                        <a href="/loggedin">Back to submit</a>
-                    </div>
-                    <div className = "logout">
-                        <a href="/login" onClick={this.onLogoutClick}>Log out</a>
-                    </div>
+    return (
+        <div>
+            <div className="nav">
+                <div className="back">
+                    <a href="/loggedin">Back to submit</a>
                 </div>
-                <div className = "info">
-                    <h1>Welcome {this.state.firstname.charAt(0).toUpperCase() + this.state.firstname.substring(1)}</h1>
-                    <p style = {this.recentStyle(this.state.listMessage)}>Here is your full history of readings.</p>
-                        <div className = "list" style = {this.listStyle(this.state.listMessage)}>
-                            <ul>
-                                {this.renderDates()}
-                            </ul>
-                            <div className="listMessage">
-                                {this.state.listMessage}
-                            </div><br /><br /><br /><br /><br />
-                            <ul>
-                                {this.renderList()} 
-                            </ul>
-                        </div> 
-                    <p>{this.renderMessage()}</p>   
-                 </div>
+                <div className="logout">
+                    <a href="/login" onClick={onLogoutClick}>Log out</a>
+                </div>
             </div>
-        )
-    }
+            <div className="info">
+                <h1>Welcome {firstname.charAt(0).toUpperCase() + firstname.substring(1)}</h1>
+                <p>{listMessage}</p>
+                <div className="list">
+                    <ul>{renderDates()}</ul>
+                    <div className="listMessage">{listMessage}</div><br /><br />
+                    <ul>{renderList()}</ul>
+                </div>
+                <p>{message}</p>
+            </div>
+        </div>
+    );
 }
 
 FullHistory.propTypes = {
     logoutUser: PropTypes.func.isRequired,
     auth: PropTypes.object.isRequired
-  }
-  const mapStateToProps = state => ({
+};
+
+const mapStateToProps = state => ({
     auth: state.auth
-  })
-  export default connect(
-    mapStateToProps,
-    { logoutUser }
-  )(FullHistory)
+});
+
+export default connect(mapStateToProps, { logoutUser })(FullHistory);

@@ -1,157 +1,82 @@
-import React, { Component } from 'react'
-import axios from 'axios'
-import PropTypes from "prop-types"
-import { connect } from "react-redux"
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import PropTypes from "prop-types";
+import { connect } from "react-redux";
+import { loginUser } from "./actions/authActions";
 
-class CreateUser extends Component {
-    constructor(props) {
-        super(props)
+const Login = ({ auth, loginUser, history }) => {
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [message, setMessage] = useState('');
 
-        this.state = {
-            firstname: '',
-            lastname: '',
-            email: '',
-            password1: '',
-            password2: '',
-            message: '',
-            loading: false // New loading state
+    useEffect(() => {
+        // Redirect if authenticated
+        if (auth.isAuthenticated) {
+            history.push("/loggedin");
         }
+    }, [auth.isAuthenticated, history]);
 
-        this.onChangeFirstname = this.onChangeFirstname.bind(this)
-        this.onChangeLastname = this.onChangeLastname.bind(this)
-        this.onChangeEmail = this.onChangeEmail.bind(this)
-        this.onChangePassword1 = this.onChangePassword1.bind(this)
-        this.onChangePassword2 = this.onChangePassword2.bind(this)
-        this.onSubmit = this.onSubmit.bind(this)
-    }
+    const onSubmit = async (e) => {
+        e.preventDefault();
 
-    componentDidMount() {
-        // If logged in and user navigates to Register page, should redirect them to dashboard
-        if (this.props.auth.isAuthenticated) {
-            this.props.history.push("/loggedin")
-        }
-    }
-
-    onChangeFirstname(e) {
-        this.setState({ firstname: e.target.value })
-    }
-
-    onChangeLastname(e) {
-        this.setState({ lastname: e.target.value })
-    }
-
-    onChangeEmail(e) {
-        this.setState({ email: e.target.value })
-    }
-
-    onChangePassword1(e) {
-        this.setState({ password1: e.target.value })
-    }
-
-    onChangePassword2(e) {
-        this.setState({ password2: e.target.value })
-    }
-
-    validateEmail(email) {
-        const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; // Email regex
-        return re.test(String(email).toLowerCase());
-    }
-
-    validatePassword(password) {
-        return password.length >= 6; // Example password strength requirement
-    }
-
-    onSubmit(e) {
-        e.preventDefault()
-
-        const { firstname, lastname, email, password1, password2 } = this.state;
-
-        // Validate inputs
-        if (!firstname || !lastname || !email || !password1 || !password2) {
-            this.setState({ message: "All fields are required." });
-            return;
-        }
-
-        if (!this.validateEmail(email)) {
-            this.setState({ message: "Invalid email format." });
-            return;
-        }
-
-        if (!this.validatePassword(password1)) {
-            this.setState({ message: "Password must be at least 6 characters long." });
-            return;
-        }
-
-        if (password1 !== password2) {
-            this.setState({ message: "Passwords do not match." });
-            return;
-        }
-
-        this.setState({ loading: true }); // Start loading
-
-        const user = {
-            firstname,
-            lastname,
+        const userData = {
             email: email.toLowerCase(),
-            password1,
-            password2
+            password,
+        };
+
+        try {
+            const res = await axios.post('/login/login', userData);
+            if (res.data.success) {
+                loginUser(userData);
+            } else {
+                setMessage(res.data.toString());
+            }
+        } catch (error) {
+            setMessage("No response from server.");
         }
+    };
 
-        axios.post('/users/add', user)
-            .then(res => {
-                this.setState({ message: res.data, loading: false });
-                if (res.data === "User added! Redirecting you to login page!") {
-                    setTimeout(() => {
-                        this.props.history.push('/login'); // Redirect using history
-                    }, 1000);
-                }
-            })
-            .catch(err => {
-                this.setState({ message: "Error creating user. Please try again.", loading: false });
-            });
-    }
-
-    render() {
-        return (
-            <div>
-                <div className="info">
-                    <h1>Sign Up</h1>
-                    <p>Start tracking your blood sugar levels</p><br />
-                    <div style={{ textAlign: 'left' }} className="listCreate">
-                        <ol>
-                            <li>Create a profile.</li>
-                            <li>Log in.</li>
-                            <li>Enter your blood sugar level and click submit.</li>
-                            <li>Your reading will be saved.</li>
-                            <li>Repeat whenever you are required to take a reading.</li>
-                        </ol>
-                    </div>
+    return (
+        <div>
+            <div className="outer_container">
+                <div className="inner_container">
+                    <h1>Blood Sugar Tracker</h1>
+                    <p>An app for diabetics</p>
+                    <form onSubmit={onSubmit}>
+                        <input
+                            className="email"
+                            type="text"
+                            name="email"
+                            placeholder="email"
+                            onChange={(e) => setEmail(e.target.value)}
+                            style={{ textAlign: 'left' }}
+                        />
+                        <input
+                            className="pword"
+                            type="password"
+                            name="password"
+                            placeholder="password"
+                            onChange={(e) => setPassword(e.target.value)}
+                        />
+                        <input type="submit" value="Login" />
+                    </form>
+                    <p><a href="/forgotpassword">Forgot</a> my password.</p>
+                    <p><a href="/createuser">Create</a> an account.</p>
                 </div>
-                <div className="outer_container_create">
-                    <div className="inner_container">
-                        <p>Profile</p>
-                        <form onSubmit={this.onSubmit}>
-                            <input className="firstname" type="text" name="firstname" placeholder="First Name" onChange={this.onChangeFirstname} />
-                            <input className="lastname" type="text" name="lastname" placeholder="Last Name" onChange={this.onChangeLastname} />
-                            <input className="email" type="email" name="email" placeholder="Email" onChange={this.onChangeEmail} /> {/* Changed type to email */}
-                            <input className="pword1" type="password" name="password1" placeholder="Password" onChange={this.onChangePassword1} />
-                            <input className="pword2" type="password" name="password2" placeholder="Confirm Password" onChange={this.onChangePassword2} />
-                            <input type="submit" value={this.state.loading ? "Creating..." : "Create"} disabled={this.state.loading} /> {/* Disable button while loading */}
-                        </form>
-                    </div>
-                    <p>{this.state.message}</p> {/* Message display */}
-                </div>
+                <p>{message}</p>
             </div>
-        )
-    }
-}
+        </div>
+    );
+};
 
-CreateUser.propTypes = {
-    auth: PropTypes.object.isRequired
-}
+Login.propTypes = {
+    loginUser: PropTypes.func.isRequired,
+    auth: PropTypes.object.isRequired,
+    history: PropTypes.object.isRequired,
+};
 
-const mapStateToProps = state => ({
-    auth: state.auth
-})
+const mapStateToProps = (state) => ({
+    auth: state.auth,
+});
 
-export default connect(mapStateToProps)(CreateUser)
+export default connect(mapStateToProps, { loginUser })(Login);

@@ -4,22 +4,22 @@ import PropTypes from "prop-types"
 import { connect } from "react-redux"
 import { logoutUser } from "./actions/authActions"
 import moment from "moment"
-import { confirmAlert } from 'react-confirm-alert';
-import 'react-confirm-alert/src/react-confirm-alert.css';
+import { confirmAlert } from 'react-confirm-alert'
+import 'react-confirm-alert/src/react-confirm-alert.css'
 
 const FullHistory = ({ auth, logoutUser }) => {
-    const [firstname, setFirstname] = useState('');
-    const [readings, setReadings] = useState([]);
-    const [message, setMessage] = useState('');
-    const [listMessage, setListMessage] = useState('');
-    const [loading, setLoading] = useState(true);
+    const [firstname, setFirstname] = useState('')
+    const [readings, setReadings] = useState([])
+    const [message, setMessage] = useState('')
+    const [listMessage, setListMessage] = useState('')
+    const [loading, setLoading] = useState(true)
 
     useEffect(() => {
         const fetchReadings = async () => {
             try {
-                const response = await axios.get('/bloodsugar');
-                const currentUser = response.data.find(x => x._id === auth.user.id);
-                const sortedReadings = currentUser.bloodSugar.sort((a, b) => new Date(b.date) - new Date(a.date));
+                const response = await axios.get('/bloodsugar') //TODO- I may have accidentally deleted this endpoint.
+                const currentUser = response.data
+                const sortedReadings = currentUser.bloodSugar.sort((a, b) => new Date(b.date) - new Date(a.date))
 
                 if (sortedReadings.length === 0) {
                     setListMessage("Your readings will display here");

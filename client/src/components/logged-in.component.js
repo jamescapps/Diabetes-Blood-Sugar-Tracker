@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import DatePicker from 'react-datepicker';
-import "react-datepicker/dist/react-datepicker.css";
-import PropTypes from "prop-types";
-import { connect } from "react-redux";
-import { logoutUser } from "./actions/authActions";
-import moment from "moment";
+import React, { useState, useEffect } from 'react'
+import axios from 'axios'
+import DatePicker from 'react-datepicker'
+import "react-datepicker/dist/react-datepicker.css"
+import PropTypes from "prop-types"
+import { connect } from "react-redux"
+import { logoutUser } from "./actions/authActions"
+import moment from "moment"
 
 const Dashboard = ({ auth, logoutUser }) => {
     const [firstname, setFirstname] = useState('');
@@ -22,39 +22,39 @@ const Dashboard = ({ auth, logoutUser }) => {
         
         const fetchData = async () => {
             try {
-                const response = await axios.get('/bloodsugar');
-                const currentUser = response.data.find(x => x._id === user.id);
+                const response = await axios.get(`/readings/${user.id}`)
+                const currentUser = response.data
                 const sortedBloodSugarArray = currentUser.bloodSugar.sort((a, b) =>
                     new Date(b.date) - new Date(a.date)
-                );
+                )
 
-                setFirstname(user.name);
-                setId(user.id);
-                setAllReadings(sortedBloodSugarArray);
-                setReadings(sortedBloodSugarArray.slice(0, 5));
+                setFirstname(user.name)
+                setId(user.id)
+                setAllReadings(sortedBloodSugarArray)
+                setReadings(sortedBloodSugarArray.slice(0, 5))
                 
                 if (sortedBloodSugarArray.length === 0) {
-                    setListMessage("Your readings will display here");
+                    setListMessage("Your readings will display here")
                 }
             } catch (error) {
-                console.error(error);
+                console.error(error)
             }
-        };
+        }
 
         fetchData();
-    }, [auth]);
+    }, [auth])
 
     const renderCategory = (lev) => {
-        if (lev > 140) return "High";
-        if (lev < 70) return "Low";
-        return "Normal";
-    };
+        if (lev > 140) return "High"
+        if (lev < 70) return "Low"
+        return "Normal"
+    }
 
     const categoryStyle = (lev) => {
-        if (lev > 140) return { color: 'red' };
-        if (lev < 70) return { color: 'blue' };
-        return { color: 'green' };
-    };
+        if (lev > 140) return { color: 'red' }
+        if (lev < 70) return { color: 'blue' }
+        return { color: 'green' }
+    }
 
     const renderList = () => {
         return readings.map((el) => (
@@ -62,8 +62,8 @@ const Dashboard = ({ auth, logoutUser }) => {
                 <li>{el.level}</li>
                 <li style={categoryStyle(el.level)}>{renderCategory(el.level)}</li><br />
             </div>
-        ));
-    };
+        ))
+    }
 
     const renderDates = () => {
         return readings.map((el) => (
@@ -75,34 +75,35 @@ const Dashboard = ({ auth, logoutUser }) => {
                     <li>{moment.utc(el.date).local().format('MMM. D, YYYY  hh:mm A').substr(13, 20)}</li><br />
                 </div>
             </div>
-        ));
-    };
+        ))
+    }
 
+    // TODO move to back end
     const averageReading = () => {
-        const total = allReadings.reduce((sum, reading) => sum + reading.level, 0);
-        const avg = total / allReadings.length;
-        return isNaN(Math.round(avg)) ? "" : Math.round(avg);
+        const total = allReadings.reduce((sum, reading) => sum + reading.level, 0)
+        const avg = total / allReadings.length
+        return isNaN(Math.round(avg)) ? "" : Math.round(avg)
     };
 
     const onSubmit = async (e) => {
-        e.preventDefault();
-        const reading = { id, level, date };
+        e.preventDefault()
+        const reading = { id, level, date }
 
         try {
-            const res = await axios.post('/bloodsugar/add', reading);
-            setMessage(res.data);
+            const res = await axios.post('/bloodsugar/add', reading)
+            setMessage(res.data)
             if (res.data === "Reading added!") {
-                setTimeout(() => window.location.reload(), 1000);
+                setTimeout(() => window.location.reload(), 1000)
             }
         } catch (error) {
-            console.error("Error submitting reading:", error);
+            console.error("Error submitting reading:", error)
         }
-    };
+    }
 
     const onLogoutClick = (e) => {
-        e.preventDefault();
-        logoutUser();
-    };
+        e.preventDefault()
+        logoutUser()
+    }
 
     return (
         <div className="main">
@@ -161,16 +162,16 @@ const Dashboard = ({ auth, logoutUser }) => {
                 </div>
             </div>
         </div>
-    );
-};
+    )
+}
 
 Dashboard.propTypes = {
     logoutUser: PropTypes.func.isRequired,
     auth: PropTypes.object.isRequired
-};
+}
 
 const mapStateToProps = (state) => ({
     auth: state.auth
-});
+})
 
-export default connect(mapStateToProps, { logoutUser })(Dashboard);
+export default connect(mapStateToProps, { logoutUser })(Dashboard)

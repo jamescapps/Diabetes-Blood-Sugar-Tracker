@@ -1,40 +1,39 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import PropTypes from "prop-types";
-import { connect } from "react-redux";
-import { loginUser } from "./actions/authActions";
+import React, { useState, useEffect } from 'react'
+import axios from 'axios'
+import PropTypes from "prop-types"
+import { connect } from "react-redux"
+import { loginUser } from "./actions/authActions"
 
 const Login = ({ auth, loginUser, history }) => {
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [message, setMessage] = useState('');
+    const [email, setEmail] = useState('')
+    const [password, setPassword] = useState('')
+    const [message, setMessage] = useState('')
 
     useEffect(() => {
-        // Redirect if authenticated
         if (auth.isAuthenticated) {
-            history.push("/loggedin");
+            history.push("/loggedin")
         }
-    }, [auth.isAuthenticated, history]);
+    }, [auth.isAuthenticated, history])
 
     const onSubmit = async (e) => {
-        e.preventDefault();
+        e.preventDefault()
 
         const userData = {
             email: email.toLowerCase(),
             password,
-        };
+        }
 
         try {
-            const res = await axios.post('/login/login', userData);
+            const res = await axios.post('/login/login', userData)
             if (res.data.success) {
-                loginUser(userData);
+                loginUser(userData)
             } else {
-                setMessage(res.data.toString());
+                setMessage(res.data.toString())
             }
         } catch (error) {
-            setMessage("No response from server.");
+            setMessage("There was an error attempting to login.")
         }
-    };
+    }
 
     return (
         <div>
@@ -66,17 +65,17 @@ const Login = ({ auth, loginUser, history }) => {
                 <p>{message}</p>
             </div>
         </div>
-    );
-};
+    )
+}
 
 Login.propTypes = {
     loginUser: PropTypes.func.isRequired,
     auth: PropTypes.object.isRequired,
     history: PropTypes.object.isRequired,
-};
+}
 
 const mapStateToProps = (state) => ({
     auth: state.auth,
-});
+})
 
-export default connect(mapStateToProps, { loginUser })(Login);
+export default connect(mapStateToProps, { loginUser })(Login)

@@ -2,8 +2,7 @@ const User = require('../models/user.model')
 
 
 const getUserData= (req, res) => {
-    const { id } = req.body
-    User.findOne({id: id})
+    User.findOne({id: req.body.id})
         .then(userData => res.json(userData))
         .catch(err => res.status(400).json({ error: err.message }))
 }

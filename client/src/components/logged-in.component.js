@@ -8,14 +8,14 @@ import { logoutUser } from "./actions/authActions"
 import moment from "moment"
 
 const Dashboard = ({ auth, logoutUser }) => {
-    const [firstname, setFirstname] = useState('');
-    const [id, setId] = useState('');
-    const [level, setLevel] = useState(0);
-    const [date, setDate] = useState(new Date());
-    const [allReadings, setAllReadings] = useState([]);
-    const [readings, setReadings] = useState([]);
-    const [message, setMessage] = useState('');
-    const [listMessage, setListMessage] = useState('');
+    const [firstname, setFirstname] = useState('')
+    const [id, setId] = useState('')
+    const [level, setLevel] = useState(0)
+    const [date, setDate] = useState(new Date())
+    const [allReadings, setAllReadings] = useState([])
+    const [readings, setReadings] = useState([])
+    const [message, setMessage] = useState('')
+    const [listMessage, setListMessage] = useState('')
 
     useEffect(() => {
         const { user } = auth;
@@ -23,8 +23,8 @@ const Dashboard = ({ auth, logoutUser }) => {
         const fetchData = async () => {
             try {
                 const response = await axios.get(`/readings/${user.id}`)
-                const currentUser = response.data
-                const sortedBloodSugarArray = currentUser.bloodSugar.sort((a, b) =>
+                // TODO sort on the backend
+                const sortedBloodSugarArray = rsonse.data.bloodSugar.sort((a, b) =>
                     new Date(b.date) - new Date(a.date)
                 )
 
@@ -83,7 +83,7 @@ const Dashboard = ({ auth, logoutUser }) => {
         const total = allReadings.reduce((sum, reading) => sum + reading.level, 0)
         const avg = total / allReadings.length
         return isNaN(Math.round(avg)) ? "" : Math.round(avg)
-    };
+    }
 
     const onSubmit = async (e) => {
         e.preventDefault()

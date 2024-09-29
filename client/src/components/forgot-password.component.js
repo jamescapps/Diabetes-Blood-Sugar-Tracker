@@ -11,7 +11,7 @@ export default class ForgotPassword extends Component {
         this.state = {
             email: '',
             message: '',
-            loading: false // New loading state
+            loading: false 
         }
     }
 
@@ -23,7 +23,7 @@ export default class ForgotPassword extends Component {
 
     validateEmail(email) {
         const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; // Email regex
-        return re.test(String(email).toLowerCase());
+        return re.test(String(email).toLowerCase())
     }
 
     onSubmit(e) {
@@ -59,8 +59,8 @@ export default class ForgotPassword extends Component {
                 this.setState({
                     message: "Error processing request. Please try again later.",
                     loading: false // Stop loading
-                });
-            });
+                })
+            })
     }
 
     render() {
@@ -72,17 +72,17 @@ export default class ForgotPassword extends Component {
                         <form onSubmit={this.onSubmit}>
                             <input
                                 className="email"
-                                type="email" // Changed type to email
+                                type="email" 
                                 name="email"
                                 placeholder="Email"
                                 onChange={this.onChangeEmail}
                                 style={{ textAlign: 'center' }}
-                                required // HTML5 validation
+                                required 
                             />
                             <input
                                 type="submit"
-                                value={this.state.loading ? "Resetting..." : "Reset"} // Change button text while loading
-                                disabled={this.state.loading} // Disable button while loading
+                                value={this.state.loading ? "Resetting..." : "Reset"} 
+                                disabled={this.state.loading} 
                             />
                         </form>
                         <p>{this.state.message}</p>

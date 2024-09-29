@@ -17,26 +17,26 @@ const FullHistory = ({ auth, logoutUser }) => {
     useEffect(() => {
         const fetchReadings = async () => {
             try {
-                const response = await axios.get('/bloodsugar') //TODO- I may have accidentally deleted this endpoint.
-                const currentUser = response.data
-                const sortedReadings = currentUser.bloodSugar.sort((a, b) => new Date(b.date) - new Date(a.date))
+                const response = await axios.get(`/bloodsugar/${auth.user.id}`) //TODO- I may have accidentally deleted this endpoint.
+                // TODO sort on the backend
+                const sortedReadings = response.data.bloodSugar.sort((a, b) => new Date(b.date) - new Date(a.date))
 
                 if (sortedReadings.length === 0) {
-                    setListMessage("Your readings will display here");
+                    setListMessage("Your readings will display here")
                 }
 
-                setFirstname(auth.user.name);
-                setReadings(sortedReadings);
+                setFirstname(auth.user.name)
+                setReadings(sortedReadings)
             } catch (error) {
-                console.error(error);
-                setMessage("Error fetching data. Please try again later.");
+                console.error(error)
+                setMessage("Error fetching data. Please try again later.")
             } finally {
-                setLoading(false);
+                setLoading(false)
             }
-        };
+        }
 
-        fetchReadings();
-    }, [auth.user.id]);
+        fetchReadings()
+    }, [auth.user.id])
 
     const alertBox = (id) => {
         confirmAlert({
@@ -46,39 +46,39 @@ const FullHistory = ({ auth, logoutUser }) => {
                 { label: 'Yes', onClick: () => deleteItem(id) },
                 { label: 'No' }
             ]
-        });
-    };
+        })
+    }
 
     const deleteItem = async (id) => {
         try {
-            const url = `/bloodsugar/${auth.user.id}/${id}`;
-            const res = await axios.delete(url);
+            const url = `/bloodsugar/${auth.user.id}/${id}`
+            const res = await axios.delete(url)
             setMessage(res.data);
             if (res.data === "Reading deleted!") {
-                setReadings(prev => prev.filter(reading => reading._id !== id));
+                setReadings(prev => prev.filter(reading => reading._id !== id))
             }
         } catch (error) {
-            setMessage("Error deleting reading. Please try again later.");
+            setMessage("Error deleting reading. Please try again later.")
         }
-    };
+    }
 
     const averageReading = () => {
-        if (readings.length === 0) return "";
-        const total = readings.reduce((acc, reading) => acc + reading.level, 0);
-        return Math.round(total / readings.length);
-    };
+        if (readings.length === 0) return ""
+        const total = readings.reduce((acc, reading) => acc + reading.level, 0)
+        return Math.round(total / readings.length)
+    }
 
     const renderCategory = (lev) => {
-        if (lev > 140) return "High";
-        if (lev < 70) return "Low";
-        return "Normal";
-    };
+        if (lev > 140) return "High"
+        if (lev < 70) return "Low"
+        return "Normal"
+    }
 
     const categoryStyle = (lev) => {
-        if (lev > 140) return { color: 'red' };
-        if (lev < 70) return { color: 'blue' };
-        return { color: 'green' };
-    };
+        if (lev > 140) return { color: 'red' }
+        if (lev < 70) return { color: 'blue' }
+        return { color: 'green' }
+    }
 
     const renderList = () => (
         readings.map(el => (
@@ -87,7 +87,7 @@ const FullHistory = ({ auth, logoutUser }) => {
                 <li style={categoryStyle(el.level)}>{renderCategory(el.level)}</li><br /><br />
             </div>
         ))
-    );
+    )
 
     const renderDates = () => (
         readings.map(el => (
@@ -100,7 +100,7 @@ const FullHistory = ({ auth, logoutUser }) => {
                 </div>
             </div>
         ))
-    );
+    )
 
     const onLogoutClick = (e) => {
         e.preventDefault();
@@ -111,11 +111,11 @@ const FullHistory = ({ auth, logoutUser }) => {
                 { label: 'Yes', onClick: logoutUser },
                 { label: 'No' }
             ]
-        });
-    };
+        })
+    }
 
     if (loading) {
-        return <p>Loading...</p>;
+        return <p>Loading...</p>
     }
 
     return (
@@ -139,16 +139,16 @@ const FullHistory = ({ auth, logoutUser }) => {
                 <p>{message}</p>
             </div>
         </div>
-    );
+    )
 }
 
 FullHistory.propTypes = {
     logoutUser: PropTypes.func.isRequired,
     auth: PropTypes.object.isRequired
-};
+}
 
 const mapStateToProps = state => ({
     auth: state.auth
-});
+})
 
-export default connect(mapStateToProps, { logoutUser })(FullHistory);
+export default connect(mapStateToProps, { logoutUser })(FullHistory)

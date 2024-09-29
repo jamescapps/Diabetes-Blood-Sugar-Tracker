@@ -1,19 +1,19 @@
-import React, { useEffect, useState } from 'react';
-import { BrowserRouter as Router, Route, Switch, Redirect } from "react-router-dom";
-import { Provider } from "react-redux";
-import store from "./store";
-import jwt_decode from "jwt-decode";
+import React, { useEffect, useState } from 'react'
+import { BrowserRouter as Router, Route, Switch, Redirect } from "react-router-dom"
+import { Provider } from "react-redux"
+import store from "./store"
+import jwt_decode from "jwt-decode"
 
-import EntryPage from "./components/entry-page.component";
-import LoggedIn from "./components/logged-in.component";
-import CreateUser from "./components/create-user.component";
-import FullHistory from "./components/full-history.component";
-import ForgotPassword from "./components/forgot-password.component";
-import ResetPassword from "./components/reset-password.component";
-import Chart from "./components/chart.component";
-import PrivateRoute from "./components/private-route/PrivateRoute";
-import setAuthToken from "./utils/setAuthToken";
-import { setCurrentUser, logoutUser } from "./components/actions/authActions";
+import EntryPage from "./components/entry-page.component"
+import LoggedIn from "./components/logged-in.component"
+import CreateUser from "./components/create-user.component"
+import FullHistory from "./components/full-history.component"
+import ForgotPassword from "./components/forgot-password.component"
+import ResetPassword from "./components/reset-password.component"
+import Chart from "./components/chart.component"
+import PrivateRoute from "./components/private-route/PrivateRoute"
+import setAuthToken from "./utils/setAuthToken"
+import { setCurrentUser, logoutUser } from "./components/actions/authActions"
 
 const checkAuthToken = () => {
   const token = localStorage.jwtToken;
@@ -31,7 +31,7 @@ const checkAuthToken = () => {
   }
   
   return { expired: false }; // No token
-};
+}
 
 function App() {
   const [isLoading, setIsLoading] = useState(true);
@@ -46,7 +46,7 @@ function App() {
       store.dispatch(setCurrentUser(decoded));
     }
     setIsLoading(false);
-  }, []);
+  }, [])
 
   if (isLoading) {
     return <p>Loading...</p>; // Optional loading state
@@ -67,7 +67,7 @@ function App() {
         </Switch>
       </Router>
     </Provider>
-  );
+  )
 }
 
 export default App;

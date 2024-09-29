@@ -1,8 +1,8 @@
-import React, { Component } from 'react';
-import axios from 'axios';
-import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
-import { logoutUser } from './actions/authActions';
+import React, { Component } from 'react'
+import axios from 'axios'
+import PropTypes from 'prop-types'
+import { connect } from 'react-redux'
+import { logoutUser } from './actions/authActions'
 import {
   VictoryChart,
   VictoryBar,
@@ -10,8 +10,8 @@ import {
   VictoryPie,
   VictoryTooltip,
   VictoryLegend,
-} from 'victory';
-import moment from 'moment';
+} from 'victory'
+import moment from 'moment'
 
 class Chart extends Component {
   state = {
@@ -20,17 +20,17 @@ class Chart extends Component {
     message: '',
     id: '',
     listMessage: '',
-  };
+  }
 
   componentDidMount() {
     const { user } = this.props.auth;
     axios
-      .get('/bloodsugar')
+      .get(`/bloodsugar/$`)
       .then((response) => {
-        const currentUser = response.data.find((x) => x._id === user.id);
-        const sortedBloodSugarArray = currentUser?.bloodSugar.sort(
+        // TODO sort on backend
+        const sortedBloodSugarArray = response.data.bloodSugar.sort(
           (a, b) => new Date(a.date) - new Date(b.date)
-        );
+        )
 
         this.setState({
           firstname: user.name,
@@ -40,59 +40,60 @@ class Chart extends Component {
             sortedBloodSugarArray && sortedBloodSugarArray.length === 0
               ? 'Your readings will display here'
               : '',
-        });
+        })
       })
-      .catch((error) => console.log(error));
+      .catch((error) => console.log(error))
   }
 
+  // TODO - avg reading on backend
   averageReading = () => {
     const { readings } = this.state;
-    const total = readings.reduce((acc, { level }) => acc + level, 0);
-    return readings.length ? Math.round(total / readings.length) : '';
+    const total = readings.reduce((acc, { level }) => acc + level, 0)
+    return readings.length ? Math.round(total / readings.length) : ''
   };
 
   categoryStyle = (lev) => {
-    if (lev > 140) return { color: 'darkred' };
-    if (lev < 70) return { color: 'blue' };
-    return { color: 'green' };
-  };
+    if (lev > 140) return { color: 'darkred' }
+    if (lev < 70) return { color: 'blue' }
+    return { color: 'green' }
+  }
 
   onLogoutClick = (e) => {
     e.preventDefault();
     this.props.logoutUser();
-  };
+  }
 
   formatReadings = () => {
     return this.state.readings.map((el) => ({
       ...el,
       date: moment.utc(el.date).local().format('MM-DD HH:mm'),
-    }));
-  };
+    }))
+  }
 
   getPercentages = () => {
-    const { readings } = this.state;
-    const totalReadings = readings.length;
+    const { readings } = this.state
+    const totalReadings = readings.length
 
     const { normalPercent, lowPercent, highPercent } = readings.reduce(
       (acc, { level }) => {
-        if (level > 140) acc.highPercent++;
-        else if (level < 70) acc.lowPercent++;
-        else acc.normalPercent++;
-        return acc;
+        if (level > 140) acc.highPercent++
+        else if (level < 70) acc.lowPercent++
+        else acc.normalPercent++
+        return acc
       },
       { normalPercent: 0, lowPercent: 0, highPercent: 0 }
-    );
+    )
 
     return {
       normalPercent: Math.round((normalPercent / totalReadings) * 100),
       lowPercent: Math.round((lowPercent / totalReadings) * 100),
       highPercent: Math.round((highPercent / totalReadings) * 100),
-    };
-  };
+    }
+  }
 
   render() {
-    const formattedReadings = this.formatReadings();
-    const { normalPercent, lowPercent, highPercent } = this.getPercentages();
+    const formattedReadings = this.formatReadings()
+    const { normalPercent, lowPercent, highPercent } = this.getPercentages()
 
     const chartTheme = {
       axis: {
@@ -106,15 +107,15 @@ class Chart extends Component {
           },
         },
       },
-    };
+    }
 
     const colorSwitcher = {
       fill: ({ datum }) => {
-        if (datum._y > 140) return 'darkred';
-        if (datum._y < 70) return 'blue';
-        return 'green';
+        if (datum._y > 140) return 'darkred'
+        if (datum._y < 70) return 'blue'
+        return 'green'
       },
-    };
+    }
 
     return (
       <div>
@@ -220,10 +221,10 @@ class Chart extends Component {
 Chart.propTypes = {
   logoutUser: PropTypes.func.isRequired,
   auth: PropTypes.object.isRequired,
-};
+}
 
 const mapStateToProps = (state) => ({
   auth: state.auth,
-});
+})
 
-export default connect(mapStateToProps, { logoutUser })(Chart);
+export default connect(mapStateToProps, { logoutUser })(Chart)

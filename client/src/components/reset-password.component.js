@@ -1,64 +1,65 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import React, { useState, useEffect } from 'react'
+import axios from 'axios'
 
 const ResetPassword = () => {
-    const [email, setEmail] = useState('');
-    const [password1, setPassword1] = useState('');
-    const [password2, setPassword2] = useState('');
-    const [message, setMessage] = useState('');
-    const [loading, setLoading] = useState(false);
+    const [email, setEmail] = useState('')
+    const [password1, setPassword1] = useState('')
+    const [password2, setPassword2] = useState('')
+    const [message, setMessage] = useState('')
+    const [loading, setLoading] = useState(false)
 
     useEffect(() => {
-        const resetToken = window.location.pathname.split('/').pop();
+        const resetToken = window.location.pathname.split('/').pop()
 
         const fetchResetToken = async () => {
             try {
                 const res = await axios.get('/resetpassword/reset/', {
                     params: { resetPasswordToken: resetToken }
-                });
+                })
                 if (res.data.message === "Password reset link ok.") {
-                    setEmail(res.data.email);
-                    setMessage(res.data.message);
+                    setEmail(res.data.email)
+                    setMessage(res.data.message)
                 } else {
                     setMessage(res.data);
                 }
             } catch (err) {
                 console.error(err);
-                setMessage("Error fetching reset token.");
+                setMessage("Error fetching reset token.")
             }
-        };
+        }
 
-        fetchResetToken();
-    }, []);
+        fetchResetToken()
+    }, [])
 
     const onSubmit = async (e) => {
-        e.preventDefault();
+        e.preventDefault()
 
         if (password1 !== password2) {
-            setMessage("Passwords do not match.");
-            return;
+            setMessage("Passwords do not match.")
+            return
         }
 
-        setLoading(true);
+        setLoading(true)
         
-        const user = { email, password1, password2 };
+        const user = { email, password1, password2 }
 
         try {
-            const res = await axios.post('/updatePasswordViaEmail/updatePasswordViaEmail', user);
-            setMessage(res.data);
-            
+            const res = await axios.post('/updatePasswordViaEmail/updatePasswordViaEmail', user)
+            setMessage(res.data)
+
+            // TODO Make these status codes or .then()
             if (res.data === "Password updated! Redirecting you to login page!") {
                 setTimeout(() => {
-                    window.location = '/login';
-                }, 1000);
+                    window.location = '/login'
+                }, 1000)
             }
         } catch (err) {
-            console.error(err);
-            setMessage("Error updating password.");
+            console.error(err)
+            setMessage("Error updating password.")
         } finally {
-            setLoading(false);
+            setLoading(false)
         }
-    };
+    }
 
     return (
         <div className="outer_container">
@@ -85,7 +86,7 @@ const ResetPassword = () => {
                 {message && <p>{message}</p>}
             </div>
         </div>
-    );
-};
+    )
+}
 
-export default ResetPassword;
+export default ResetPassword

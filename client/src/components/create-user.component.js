@@ -54,17 +54,17 @@ class CreateUser extends Component {
     onSubmit(e) {
         e.preventDefault()
 
-        const { firstname, lastname, email, password1, password2 } = this.state;
+        const { firstname, lastname, email, password1, password2 } = this.state
 
         // Validate inputs
         if (!firstname || !lastname || !email || !password1 || !password2) {
-            this.setState({ message: "All fields are required." });
-            return;
+            this.setState({ message: "All fields are required." })
+            return
         }
 
         if (password1 !== password2) {
-            this.setState({ message: "Passwords do not match." });
-            return;
+            this.setState({ message: "Passwords do not match." })
+            return
         }
 
         const user = {
@@ -77,7 +77,8 @@ class CreateUser extends Component {
 
         axios.post('/users/add', user)
             .then(res => {
-                this.setState({ message: res.data });
+                this.setState({ message: res.data })
+                // TODO change this
                 if (res.data === "User added! Redirecting you to login page!") {
                     setTimeout(() => {
                         this.props.history.push('/login'); // Redirect using history
@@ -85,8 +86,8 @@ class CreateUser extends Component {
                 }
             })
             .catch(err => {
-                this.setState({ message: "Error creating user. Please try again." });
-            });
+                this.setState({ message: "Error creating user. Please try again." })
+            })
     }
 
     render() {

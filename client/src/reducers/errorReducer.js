@@ -3,7 +3,7 @@ import { GET_ERRORS, CLEAR_ERRORS } from "../actions/types";
 const initialState = {
     message: null,
     status: null,
-};
+}
 
 export default function errorReducer(state = initialState, action) {
     switch (action.type) {

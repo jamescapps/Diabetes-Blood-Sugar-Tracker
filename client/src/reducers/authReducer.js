@@ -1,11 +1,11 @@
-import { SET_CURRENT_USER, USER_LOADING } from "../actions/types";
-import isEmpty from "is-empty";
+import { SET_CURRENT_USER, USER_LOADING } from "../actions/types"
+import isEmpty from "is-empty"
 
 const initialState = {
     isAuthenticated: false,
     user: {},
     loading: false,
-};
+}
 
 export default function authReducer(state = initialState, { type, payload }) {
     switch (type) {

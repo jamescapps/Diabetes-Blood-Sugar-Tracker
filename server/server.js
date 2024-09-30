@@ -23,7 +23,7 @@ mongoose.connection.once('open', () => {
     console.log("Connected to database!")
 })
 
-const registrationRouter = require('./routes/registration')
+const registrationRouter = require('./routes/userRegistration')
 const readingsRouter = require('./routes/readings')
 const loginRouter = require('./routes/login')
 const passwordUpdateRoutes = require('./routes/password')

@@ -1,5 +1,5 @@
 const router = require('express').Router()
-const { getUserData, addReading, deleteReading, getUserData } = require('../controllers/readings')
+const { addReading, deleteReading, getUserData } = require('../controllers/readings')
 
 router.get('/', getUserData)
 

@@ -4,7 +4,7 @@ import DatePicker from 'react-datepicker'
 import "react-datepicker/dist/react-datepicker.css"
 import PropTypes from "prop-types"
 import { connect } from "react-redux"
-import { logoutUser } from "./actions/authActions"
+import { logoutUser } from "../actions/authActions"
 import moment from "moment"
 
 const Dashboard = ({ auth, logoutUser }) => {
@@ -24,7 +24,7 @@ const Dashboard = ({ auth, logoutUser }) => {
             try {
                 const response = await axios.get(`/readings/${user.id}`)
                 // TODO sort on the backend
-                const sortedBloodSugarArray = rsonse.data.bloodSugar.sort((a, b) =>
+                const sortedBloodSugarArray = response.data.bloodSugar.sort((a, b) =>
                     new Date(b.date) - new Date(a.date)
                 )
 

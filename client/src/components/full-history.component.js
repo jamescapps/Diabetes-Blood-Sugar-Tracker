@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import axios from 'axios'
 import PropTypes from "prop-types"
 import { connect } from "react-redux"
-import { logoutUser } from "./actions/authActions"
+import { logoutUser } from "../actions/authActions"
 import moment from "moment"
 import { confirmAlert } from 'react-confirm-alert'
 import 'react-confirm-alert/src/react-confirm-alert.css'

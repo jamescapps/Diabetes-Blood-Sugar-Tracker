@@ -13,7 +13,7 @@ import ResetPassword from "./components/reset-password.component"
 import Chart from "./components/chart.component"
 import PrivateRoute from "./components/private-route/PrivateRoute"
 import setAuthToken from "./utils/setAuthToken"
-import { setCurrentUser, logoutUser } from "./components/actions/authActions"
+import { setCurrentUser, logoutUser } from "./actions/authActions"
 
 const checkAuthToken = () => {
   const token = localStorage.jwtToken;

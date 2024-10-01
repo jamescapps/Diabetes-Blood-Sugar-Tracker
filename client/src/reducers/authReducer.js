@@ -14,7 +14,7 @@ export default function authReducer(state = initialState, { type, payload }) {
                 ...state,
                 isAuthenticated: !isEmpty(payload),
                 user: payload,
-                loading: false, // You might want to set loading to false after user is set
+                loading: false,
             };
         case USER_LOADING:
             return {

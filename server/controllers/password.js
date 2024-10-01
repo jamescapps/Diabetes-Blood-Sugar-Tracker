@@ -80,7 +80,7 @@ const validateResetToken = (req, res) => {
     })
 }
 
-const updatePasswordViaEmail = (req, res) => {
+const updatePassword = (req, res) => {
     const { email, password1, password2 } = req.body
 
     if (password1 !== password2) {
@@ -118,5 +118,5 @@ const updatePasswordViaEmail = (req, res) => {
 module.exports = {
     forgotPassword,
     validateResetToken,
-    updatePasswordViaEmail
+    updatePassword
 }

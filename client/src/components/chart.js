@@ -12,6 +12,7 @@ import {
   VictoryLegend,
 } from 'victory'
 import moment from 'moment'
+import "../App.css"
 
 class Chart extends Component {
   state = {

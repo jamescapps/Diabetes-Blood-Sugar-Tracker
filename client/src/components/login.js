@@ -3,6 +3,7 @@ import axios from 'axios'
 import PropTypes from "prop-types"
 import { connect } from "react-redux"
 import { loginUser } from "../actions/authActions"
+import "../App.css"
 
 
 const Login = ({ auth, loginUser, history }) => {

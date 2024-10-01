@@ -6,6 +6,7 @@ import PropTypes from "prop-types"
 import { connect } from "react-redux"
 import { logoutUser } from "../actions/authActions"
 import moment from "moment"
+import "../App.css"
 
 const Dashboard = ({ auth, logoutUser }) => {
     const [firstname, setFirstname] = useState('')

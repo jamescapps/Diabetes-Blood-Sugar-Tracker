@@ -142,7 +142,7 @@ const History = ({ auth, logoutUser }) => {
     )
 }
 
-FullHistory.propTypes = {
+History.propTypes = {
     logoutUser: PropTypes.func.isRequired,
     auth: PropTypes.object.isRequired
 }

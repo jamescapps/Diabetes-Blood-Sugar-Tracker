@@ -125,7 +125,7 @@ class Register extends Component {
     }
 }
 
-CreateUser.propTypes = {
+Register.propTypes = {
     auth: PropTypes.object.isRequired
 }
 

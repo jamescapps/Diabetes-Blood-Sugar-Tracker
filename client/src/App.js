@@ -7,11 +7,12 @@ import jwt_decode from "jwt-decode"
 import Login from "./components/login"
 import Dashboard from "./components/dashboard"
 import Register from "./components/register"
-import FullHistory from "./components/full-history"
+import History from "./components/history"
 import ForgotPassword from "./components/password/forgot-password"
 import ResetPassword from "./components/password/reset-password"
 import Chart from "./components/chart"
 import PrivateRoute from "./components/private-route/PrivateRoute"
+
 import setAuthToken from "./utils/setAuthToken"
 import { setCurrentUser, logoutUser } from "./actions/authActions"
 

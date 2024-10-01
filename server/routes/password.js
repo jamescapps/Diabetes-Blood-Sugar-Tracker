@@ -1,10 +1,10 @@
 const router = require('express').Router();
-const { forgotPassword, validateResetToken, updatePasswordViaEmail } = require('../controllers/password');
+const { forgotPassword, validateResetToken, updatePassword } = require('../controllers/password');
 
 router.post('/forgotpassword', forgotPassword);
 
 router.post('/reset', validateResetToken)
 
-router.post('/update', updatePasswordViaEmail)
+router.post('/update', updatePassword)
 
 module.exports = router;

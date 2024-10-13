@@ -28,7 +28,7 @@ const readingsRouter = require('./routes/readings')
 const loginRouter = require('./routes/login')
 const passwordUpdateRoutes = require('./routes/password')
 
-app.use('/registration', registrationRouter)
+app.use('/register', registrationRouter)
 app.use('/readings', readingsRouter)
 app.use('/login', loginRouter)
 app.use('/password', passwordUpdateRoutes);
@@ -44,6 +44,6 @@ if (process.env.NODE_ENV === 'production' || process.env.NODE_ENV === 'staging')
 }  
 
 
-app.listen(process.env.PORT || 5000, () => {
+app.listen(process.env.PORT || 3000, () => {
     console.log("Server is running!")
 })

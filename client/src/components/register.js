@@ -76,7 +76,7 @@ class Register extends Component {
             password2
         }
 
-        axios.post('/users/add', user)
+        axios.post('/register/', user)
             .then(res => {
                 this.setState({ message: res.data })
                 // TODO change this
